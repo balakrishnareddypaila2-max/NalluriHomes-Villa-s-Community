@@ -1,0 +1,310 @@
+{
+  "entities": {
+    "VillaRegistration": {
+      "title": "VillaRegistration",
+      "description": "Villa owner signup registration awaiting or holding admin approval.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "Firebase Auth UID of the registering villa owner.",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "fullName": {
+          "type": "string",
+          "description": "Full registration name of the villa owner.",
+          "minLength": 2,
+          "maxLength": 100
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "description": "Registration email address.",
+          "minLength": 5,
+          "maxLength": 160
+        },
+        "phone": {
+          "type": "string",
+          "description": "Owner mobile/contact phone number.",
+          "minLength": 7,
+          "maxLength": 24
+        },
+        "villaNumber": {
+          "type": "number",
+          "description": "Villa unit number between 1 and 231."
+        },
+        "emergencyContactName": {
+          "type": "string",
+          "description": "Emergency contact person name.",
+          "minLength": 2,
+          "maxLength": 100
+        },
+        "emergencyContactPhone": {
+          "type": "string",
+          "description": "Emergency contact telephone number.",
+          "minLength": 7,
+          "maxLength": 24
+        },
+        "address": {
+          "type": "string",
+          "description": "Villa community address.",
+          "minLength": 5,
+          "maxLength": 240
+        },
+        "avatarDataUrl": {
+          "type": "string",
+          "description": "Compressed profile image data URL or preset avatar URI.",
+          "maxLength": 100000
+        },
+        "passwordSalt": {
+          "type": "string",
+          "description": "Per-owner cryptographic salt for password verification.",
+          "maxLength": 64
+        },
+        "passwordHash": {
+          "type": "string",
+          "description": "SHA-256 salted password digest.",
+          "maxLength": 128
+        },
+        "status": {
+          "type": "string",
+          "enum": ["pending", "approved", "rejected"],
+          "description": "Admin approval workflow state."
+        },
+        "adminNote": {
+          "type": "string",
+          "description": "Optional note recorded by admin during approval or rejection.",
+          "maxLength": 300
+        },
+        "reviewedBy": {
+          "type": "string",
+          "description": "UID of admin who reviewed the registration.",
+          "maxLength": 128
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp of initial registration."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp of latest update."
+        }
+      },
+      "required": [
+        "userId",
+        "fullName",
+        "email",
+        "phone",
+        "villaNumber",
+        "status",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "VillaDirectoryEntry": {
+      "title": "VillaDirectoryEntry",
+      "description": "Approved villa directory record synced for enclave emergency & concierge reference.",
+      "type": "object",
+      "properties": {
+        "villaNumber": {
+          "type": "number",
+          "description": "Villa unit number between 1 and 231."
+        },
+        "villaCode": {
+          "type": "string",
+          "description": "Formatted villa code e.g. Villa #108.",
+          "minLength": 4,
+          "maxLength": 20
+        },
+        "ownerName": {
+          "type": "string",
+          "description": "Approved resident or family display name.",
+          "minLength": 2,
+          "maxLength": 100
+        },
+        "street": {
+          "type": "string",
+          "description": "Enclave street or avenue.",
+          "minLength": 2,
+          "maxLength": 80
+        },
+        "intercomExt": {
+          "type": "string",
+          "description": "Internal villa intercom extension.",
+          "minLength": 3,
+          "maxLength": 20
+        },
+        "emergencyLine": {
+          "type": "string",
+          "description": "Villa emergency & security desk line.",
+          "minLength": 7,
+          "maxLength": 32
+        },
+        "occupancyStatus": {
+          "type": "string",
+          "enum": ["Occupied", "Approved", "Available"],
+          "description": "Current villa occupancy state."
+        },
+        "ownerUid": {
+          "type": "string",
+          "description": "UID of the approved villa owner.",
+          "maxLength": 128
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp of last sync."
+        }
+      },
+      "required": [
+        "villaNumber",
+        "villaCode",
+        "ownerName",
+        "street",
+        "intercomExt",
+        "emergencyLine",
+        "occupancyStatus",
+        "updatedAt"
+      ]
+    },
+    "AdminUser": {
+      "title": "AdminUser",
+      "description": "Enclave administrator record created by primary or existing admins.",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "fullName": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 100
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "minLength": 5,
+          "maxLength": 160
+        },
+        "phone": {
+          "type": "string",
+          "minLength": 7,
+          "maxLength": 24
+        },
+        "villaNumber": {
+          "type": "number"
+        },
+        "passwordSalt": {
+          "type": "string",
+          "maxLength": 64
+        },
+        "passwordHash": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "addedBy": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["uid", "email", "createdAt"]
+    },
+    "AppBranding": {
+      "title": "AppBranding",
+      "description": "Application emblem/logo configuration editable strictly by Admin.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "logoDataUrl": {
+          "type": "string",
+          "maxLength": 200000
+        },
+        "updatedBy": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["id", "logoDataUrl", "updatedAt"]
+    },
+    "EmergencyDesk": {
+      "title": "EmergencyDesk",
+      "description": "Enclave rapid-response emergency desk contact details editable strictly by Admin.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 100
+        },
+        "detail": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 160
+        },
+        "ext": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 32
+        },
+        "number": {
+          "type": "string",
+          "minLength": 7,
+          "maxLength": 32
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["id", "title", "detail", "ext", "number", "updatedAt"]
+    }
+  },
+  "firestore": {
+    "/registrations/{userId}": {
+      "schema": { "$ref": "#/entities/VillaRegistration" },
+      "description": "Private villa owner signup applications with PII isolated to owner and admins."
+    },
+    "/villas_directory/{villaId}": {
+      "schema": { "$ref": "#/entities/VillaDirectoryEntry" },
+      "description": "Enclave directory entries for approved villas (1-231) without personal email PII."
+    },
+    "/emergency_desks/{deskId}": {
+      "schema": { "$ref": "#/entities/EmergencyDesk" },
+      "description": "Enclave emergency desks editable only by Admin."
+    },
+    "/admins/{adminUid}": {
+      "schema": { "$ref": "#/entities/AdminUser" },
+      "description": "Explicitly provisioned enclave admin accounts."
+    },
+    "/app_settings/{settingId}": {
+      "schema": { "$ref": "#/entities/AppBranding" },
+      "description": "Application branding settings including custom logo editable only by Admin."
+    }
+  }
+}

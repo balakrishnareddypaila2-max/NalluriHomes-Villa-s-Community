@@ -1,0 +1,305 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Global Safety Net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Core Helpers
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isVerifiedEmail() {
+      return isSignedIn() && request.auth.token.email_verified == true;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isBootstrappedAdmin() {
+      return isVerifiedEmail() && request.auth.token.email == 'balakrishnareddy.paila2@gmail.com';
+    }
+
+    function isAdmin() {
+      return isBootstrappedAdmin() || (
+        isVerifiedEmail() &&
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+      );
+    }
+
+    // Validation Blueprint: VillaRegistration
+    function isValidRegistration(data) {
+      return data.keys().hasAll([
+        'userId',
+        'fullName',
+        'email',
+        'phone',
+        'villaNumber',
+        'status',
+        'createdAt',
+        'updatedAt'
+      ])
+      && data.keys().hasOnly([
+        'userId',
+        'fullName',
+        'email',
+        'phone',
+        'villaNumber',
+        'emergencyContactName',
+        'emergencyContactPhone',
+        'address',
+        'avatarDataUrl',
+        'passwordSalt',
+        'passwordHash',
+        'status',
+        'adminNote',
+        'reviewedBy',
+        'createdAt',
+        'updatedAt'
+      ])
+      && isValidId(data.userId)
+      && data.fullName is string && data.fullName.size() >= 2 && data.fullName.size() <= 100
+      && data.email is string && data.email.size() >= 5 && data.email.size() <= 160
+      && data.phone is string && data.phone.size() >= 7 && data.phone.size() <= 24
+      && data.villaNumber is int && data.villaNumber >= 1 && data.villaNumber <= 231
+      && data.status in ['pending', 'approved', 'rejected']
+      && data.createdAt is timestamp
+      && data.updatedAt is timestamp
+      && (!('emergencyContactName' in data) || (data.emergencyContactName is string && data.emergencyContactName.size() >= 2 && data.emergencyContactName.size() <= 100))
+      && (!('emergencyContactPhone' in data) || (data.emergencyContactPhone is string && data.emergencyContactPhone.size() >= 7 && data.emergencyContactPhone.size() <= 24))
+      && (!('address' in data) || (data.address is string && data.address.size() >= 5 && data.address.size() <= 240))
+      && (!('avatarDataUrl' in data) || (data.avatarDataUrl is string && data.avatarDataUrl.size() <= 100000))
+      && (!('passwordSalt' in data) || (data.passwordSalt is string && data.passwordSalt.size() <= 64))
+      && (!('passwordHash' in data) || (data.passwordHash is string && data.passwordHash.size() <= 128))
+      && (!('adminNote' in data) || (data.adminNote is string && data.adminNote.size() <= 300))
+      && (!('reviewedBy' in data) || (data.reviewedBy is string && data.reviewedBy.size() <= 128));
+    }
+
+    // Validation Blueprint: VillaDirectoryEntry
+    function isValidVillaEntry(data) {
+      return data.keys().hasAll([
+        'villaNumber',
+        'villaCode',
+        'ownerName',
+        'street',
+        'intercomExt',
+        'emergencyLine',
+        'occupancyStatus',
+        'updatedAt'
+      ])
+      && data.keys().hasOnly([
+        'villaNumber',
+        'villaCode',
+        'ownerName',
+        'street',
+        'intercomExt',
+        'emergencyLine',
+        'occupancyStatus',
+        'ownerUid',
+        'updatedAt'
+      ])
+      && data.villaNumber is int && data.villaNumber >= 1 && data.villaNumber <= 231
+      && data.villaCode is string && data.villaCode.size() >= 4 && data.villaCode.size() <= 20
+      && data.ownerName is string && data.ownerName.size() >= 2 && data.ownerName.size() <= 100
+      && data.street is string && data.street.size() >= 2 && data.street.size() <= 80
+      && data.intercomExt is string && data.intercomExt.size() >= 3 && data.intercomExt.size() <= 20
+      && data.emergencyLine is string && data.emergencyLine.size() >= 7 && data.emergencyLine.size() <= 32
+      && data.occupancyStatus in ['Occupied', 'Approved', 'Available']
+      && (!('ownerUid' in data) || (data.ownerUid is string && data.ownerUid.size() <= 128))
+      && data.updatedAt is timestamp;
+    }
+
+    function isValidAdminUser(data) {
+      return data.keys().hasAll(['uid', 'email', 'createdAt'])
+        && data.keys().hasOnly(['uid', 'fullName', 'email', 'phone', 'villaNumber', 'passwordSalt', 'passwordHash', 'addedBy', 'createdAt'])
+        && isValidId(data.uid)
+        && data.email is string && data.email.size() >= 5 && data.email.size() <= 160
+        && (!('fullName' in data) || (data.fullName is string && data.fullName.size() >= 2 && data.fullName.size() <= 100))
+        && (!('phone' in data) || (data.phone is string && data.phone.size() >= 7 && data.phone.size() <= 24))
+        && (!('villaNumber' in data) || (data.villaNumber is int && data.villaNumber >= 1 && data.villaNumber <= 231))
+        && (!('passwordSalt' in data) || (data.passwordSalt is string && data.passwordSalt.size() <= 64))
+        && (!('passwordHash' in data) || (data.passwordHash is string && data.passwordHash.size() <= 128))
+        && (!('addedBy' in data) || (data.addedBy is string && data.addedBy.size() <= 128))
+        && data.createdAt is timestamp;
+    }
+
+    function isValidAppBranding(data) {
+      return data.keys().hasAll(['id', 'logoDataUrl', 'updatedAt'])
+        && data.keys().hasOnly(['id', 'logoDataUrl', 'updatedBy', 'updatedAt'])
+        && isValidId(data.id)
+        && data.logoDataUrl is string && data.logoDataUrl.size() <= 200000
+        && (!('updatedBy' in data) || (data.updatedBy is string && data.updatedBy.size() <= 128))
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidEmergencyDesk(data) {
+      return data.keys().hasAll(['id', 'title', 'detail', 'ext', 'number', 'updatedAt'])
+        && data.keys().hasOnly(['id', 'title', 'detail', 'ext', 'number', 'updatedAt'])
+        && isValidId(data.id)
+        && data.title is string && data.title.size() >= 2 && data.title.size() <= 100
+        && data.detail is string && data.detail.size() >= 2 && data.detail.size() <= 160
+        && data.ext is string && data.ext.size() >= 2 && data.ext.size() <= 32
+        && data.number is string && data.number.size() >= 7 && data.number.size() <= 32
+        && data.updatedAt is timestamp;
+    }
+
+    // Villa Owner Registrations (PII isolated to owner & admin)
+    match /registrations/{userId} {
+      allow get: if isValidId(userId) && (isOwner(userId) || isAdmin());
+      allow list: if isBootstrappedAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
+
+      allow create: if isValidId(userId)
+        && isOwner(userId)
+        && isVerifiedEmail()
+        && isValidRegistration(incoming())
+        && incoming().userId == request.auth.uid
+        && incoming().status == 'pending'
+        && !('reviewedBy' in incoming())
+        && !('adminNote' in incoming())
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+
+      allow update: if isValidId(userId)
+        && isValidRegistration(incoming())
+        && incoming().userId == existing().userId
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && (
+          (isAdmin()
+            && incoming().diff(existing()).affectedKeys().hasOnly([
+              'fullName',
+              'phone',
+              'villaNumber',
+              'emergencyContactName',
+              'emergencyContactPhone',
+              'address',
+              'status',
+              'adminNote',
+              'reviewedBy',
+              'updatedAt'
+            ]))
+          ||
+          (isOwner(userId)
+            && isVerifiedEmail()
+            && existing().status != 'approved'
+            && incoming().status == 'pending'
+            && incoming().diff(existing()).affectedKeys().hasOnly([
+              'fullName',
+              'email',
+              'phone',
+              'villaNumber',
+              'emergencyContactName',
+              'emergencyContactPhone',
+              'address',
+              'avatarDataUrl',
+              'passwordSalt',
+              'passwordHash',
+              'status',
+              'updatedAt'
+            ]))
+          ||
+          (isOwner(userId)
+            && isVerifiedEmail()
+            && existing().status == 'approved'
+            && incoming().status == 'approved'
+            && incoming().villaNumber == existing().villaNumber
+            && incoming().diff(existing()).affectedKeys().hasOnly([
+              'avatarDataUrl',
+              'updatedAt'
+            ]))
+        );
+
+      allow delete: if isValidId(userId) && isAdmin();
+    }
+
+    // Approved Villa Directory Sync (No personal email PII)
+    match /villas_directory/{villaId} {
+      allow get: if isValidId(villaId) && isSignedIn();
+      allow list: if isBootstrappedAdmin() || (isSignedIn() && resource.data.villaNumber >= 1 && resource.data.villaNumber <= 231);
+
+      allow create: if isValidId(villaId)
+        && isAdmin()
+        && isValidVillaEntry(incoming())
+        && incoming().updatedAt == request.time;
+
+      allow update: if isValidId(villaId)
+        && isValidVillaEntry(incoming())
+        && incoming().updatedAt == request.time
+        && isAdmin()
+        && incoming().diff(existing()).affectedKeys().hasOnly([
+          'villaNumber',
+          'villaCode',
+          'ownerName',
+          'street',
+          'intercomExt',
+          'emergencyLine',
+          'occupancyStatus',
+          'ownerUid',
+          'updatedAt'
+        ]);
+
+      allow delete: if isValidId(villaId) && isAdmin();
+    }
+
+    // Enclave Emergency Rapid-Response Desks (Admin-only edits)
+    match /emergency_desks/{deskId} {
+      allow get: if isValidId(deskId) && isSignedIn();
+      allow list: if isBootstrappedAdmin() || (isSignedIn() && resource.data.id in ['emg-guardhouse', 'emg-medical', 'emg-fire']);
+
+      allow create: if isValidId(deskId)
+        && isAdmin()
+        && isValidEmergencyDesk(incoming())
+        && incoming().id == deskId
+        && incoming().updatedAt == request.time;
+
+      allow update: if isValidId(deskId)
+        && isValidEmergencyDesk(incoming())
+        && incoming().id == existing().id
+        && incoming().updatedAt == request.time
+        && isAdmin()
+        && incoming().diff(existing()).affectedKeys().hasOnly([
+          'title',
+          'detail',
+          'ext',
+          'number',
+          'updatedAt'
+        ]);
+
+      allow delete: if isValidId(deskId) && isAdmin();
+    }
+
+    // Trusted Enclave Admins (multiple admins managed by existing admins)
+    match /admins/{adminUid} {
+      allow get: if isValidId(adminUid) && (isOwner(adminUid) || isAdmin());
+      allow list: if isAdmin();
+      allow create: if isValidId(adminUid) && isAdmin() && isValidAdminUser(incoming()) && incoming().uid == adminUid && incoming().createdAt == request.time;
+      allow update: if isValidId(adminUid) && isAdmin() && isValidAdminUser(incoming()) && incoming().uid == existing().uid && incoming().createdAt == existing().createdAt;
+      allow delete: if isValidId(adminUid) && isAdmin() && existing().email != 'balakrishnareddy.paila2@gmail.com';
+    }
+
+    // Application Branding (Custom Logo editable strictly by Admin)
+    match /app_settings/{settingId} {
+      allow get: if isValidId(settingId) && settingId == 'branding';
+      allow list: if false;
+      allow create: if isValidId(settingId) && settingId == 'branding' && isAdmin() && isValidAppBranding(incoming()) && incoming().id == settingId && incoming().updatedAt == request.time;
+      allow update: if isValidId(settingId) && settingId == 'branding' && isAdmin() && isValidAppBranding(incoming()) && incoming().id == existing().id && incoming().updatedAt == request.time;
+      allow delete: if isValidId(settingId) && settingId == 'branding' && isAdmin();
+    }
+  }
+}

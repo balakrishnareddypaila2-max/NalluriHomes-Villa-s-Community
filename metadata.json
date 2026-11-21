@@ -1,0 +1,8 @@
+{
+  "name": "Estate Sanctum",
+  "description": "NALLURI HOMES – a place where your dreams of a beautiful home finally find their address. These private G+2 villas are thoughtfully crafted to give you a sense of pride, comfort, and belonging, featuring modern amenities and lush green surroundings for an elevated lifestyle with 231 villas spread across a gated community with premium infrastructure.\n\nApplication copy rights by Balakrishna Redy ",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

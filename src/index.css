@@ -1,0 +1,132 @@
+@import "tailwindcss";
+
+@theme {
+  --font-serif: "Noto Serif", Georgia, serif;
+  --font-sans: "Manrope", system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+
+  --color-surface: #F4F6F1;
+  --color-surface-low: #ECF2ED;
+  --color-surface-container: #E5ECE6;
+  --color-surface-high: #DEE6DF;
+  --color-surface-highest: #D6DFD8;
+  --color-on-surface: #141E1B;
+  --color-on-surface-variant: #414B47;
+
+  --color-primary: #0B3529;
+  --color-primary-container: #00241A;
+  --color-secondary: #85631E;
+  --color-secondary-container: #F7DDA4;
+  --color-secondary-fixed: #FFDEA5;
+  --color-champagne: #C59B48;
+  --color-outline-variant: #C9D2CB;
+  --color-crimson-dispatch: #BA1A1A;
+}
+
+@layer base {
+  html {
+    font-family: var(--font-sans);
+    background-color: #F4F6F1;
+    color: #141E1B;
+    scroll-behavior: smooth;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  h1, h2, .font-display {
+    font-family: var(--font-serif);
+    text-wrap: balance;
+  }
+}
+
+.estate-canvas-bg {
+  background-color: #F4F6F1;
+  transition: background-color 0.65s cubic-bezier(0.22, 1, 0.36, 1), background-image 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+  background-image:
+    radial-gradient(920px 520px at 8% -4%, rgba(16, 185, 129, 0.14), transparent 65%),
+    radial-gradient(780px 460px at 94% 4%, rgba(245, 158, 11, 0.16), transparent 60%),
+    radial-gradient(640px 420px at 50% 100%, rgba(11, 53, 41, 0.08), transparent 70%);
+}
+
+.estate-theme-home {
+  background-color: #F3F7F3;
+  background-image:
+    radial-gradient(920px 520px at 8% -4%, rgba(16, 185, 129, 0.18), transparent 65%),
+    radial-gradient(780px 460px at 94% 4%, rgba(245, 158, 11, 0.18), transparent 60%),
+    radial-gradient(640px 420px at 50% 100%, rgba(11, 53, 41, 0.08), transparent 70%);
+}
+
+.estate-theme-gate {
+  background-color: #F1F6F8;
+  background-image:
+    radial-gradient(920px 520px at 8% -4%, rgba(14, 116, 144, 0.18), transparent 65%),
+    radial-gradient(780px 460px at 94% 4%, rgba(56, 189, 248, 0.15), transparent 60%),
+    radial-gradient(640px 420px at 50% 100%, rgba(197, 155, 72, 0.12), transparent 70%);
+}
+
+.estate-theme-amenities {
+  background-color: #F2F7F6;
+  background-image:
+    radial-gradient(920px 520px at 8% -4%, rgba(20, 184, 166, 0.18), transparent 65%),
+    radial-gradient(780px 460px at 94% 4%, rgba(249, 115, 22, 0.14), transparent 60%),
+    radial-gradient(640px 420px at 50% 100%, rgba(13, 148, 136, 0.10), transparent 70%);
+}
+
+.estate-theme-community {
+  background-color: #FBF6F3;
+  background-image:
+    radial-gradient(920px 520px at 8% -4%, rgba(225, 29, 72, 0.13), transparent 65%),
+    radial-gradient(780px 460px at 94% 4%, rgba(245, 158, 11, 0.19), transparent 60%),
+    radial-gradient(640px 420px at 50% 100%, rgba(139, 92, 246, 0.09), transparent 70%);
+}
+
+.estate-theme-directory {
+  background-color: #F3F5FA;
+  background-image:
+    radial-gradient(920px 520px at 8% -4%, rgba(79, 70, 229, 0.14), transparent 65%),
+    radial-gradient(780px 460px at 94% 4%, rgba(197, 155, 72, 0.18), transparent 60%),
+    radial-gradient(640px 420px at 50% 100%, rgba(11, 53, 41, 0.10), transparent 70%);
+}
+
+.estate-card {
+  background-color: rgba(255, 255, 255, 0.94);
+  border: 1px solid #E2DDD2;
+  box-shadow:
+    0 8px 28px -6px rgba(11, 53, 41, 0.065),
+    0 1px 3px 0 rgba(20, 30, 27, 0.025);
+  transition: transform 0.32s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.32s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.32s ease;
+}
+
+.estate-card-prestige {
+  background: linear-gradient(180deg, #FFFFFF 0%, #FDFBF7 100%);
+  border: 1px solid rgba(197, 155, 72, 0.5);
+  box-shadow:
+    0 14px 36px -8px rgba(11, 53, 41, 0.095),
+    0 3px 10px -2px rgba(197, 155, 72, 0.2);
+}
+
+.estate-inset {
+  background-color: #EEF3EE;
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
